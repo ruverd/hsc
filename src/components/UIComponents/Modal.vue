@@ -1,5 +1,6 @@
 <template>
   <SlideYUpTransition :duration="animationDuration">
+    <form>
     <div class="modal fade"
          @click.self="closeModal"
          :class="[{'show d-block': show}, {'d-none': !show}, {'modal-mini': type === 'mini'}]"
@@ -7,6 +8,7 @@
          tabindex="-1"
          role="dialog"
          :aria-hidden="!show">
+      
 
       <div class="modal-dialog"
            :class="[{'modal-notice': type === 'notice'}, modalClasses]">
@@ -37,8 +39,8 @@
           </div>
         </div>
       </div>
-
     </div>
+    </form>
   </SlideYUpTransition>
 </template>
 <script>

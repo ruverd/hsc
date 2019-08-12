@@ -33,7 +33,6 @@ const auth = {
       });
     },
     login: ({ dispatch, commit }, { email, password }) => {
-
         commit('LOGIN_REQUEST', { email });
         
         authService.login(email, password)
@@ -66,5 +65,3 @@ const auth = {
 }
 
 export default auth
-
-

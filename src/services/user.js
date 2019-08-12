@@ -5,62 +5,65 @@ export const userService = {
     getAll,
     getById,
     update,
+    create,
+    updatePassword,
     delete: _delete
 };
 
-function getAll() {
-    const requestOptions = {
-        method: 'GET',
-        headers: authHeader()
-    };
 
-    return fetch(`${apiUrl}/users`, requestOptions).then(handleResponse);
+async function updatePassword(password) {
+    try {
+      const resp = await API.put("user/password", {
+        password: password
+      });
+      return resp
+    } catch (err) {
+      return Promise.reject(err.response.data.error);
+    }
 }
 
-
-function getById(id) {
-    const requestOptions = {
-        method: 'GET',
-        headers: authHeader()
-    };
-
-    return fetch(`${apiUrl}/users/${id}`, requestOptions).then(handleResponse);
-}
-
-function update(user) {
-    const requestOptions = {
-        method: 'PUT',
-        headers: { ...authHeader(), 'Content-Type': 'application/json' },
-        body: JSON.stringify(user)
-    };
-
-    return fetch(`${apiUrl}/users/${user.id}`, requestOptions).then(handleResponse);
-}
-
-// prefixed function name with underscore because delete is a reserved word in javascript
-function _delete(id) {
-    const requestOptions = {
-        method: 'DELETE',
-        headers: authHeader()
-    };
-
-    return fetch(`${apiUrl}/users/${id}`, requestOptions).then(handleResponse);
-}
-
-function handleResponse(response) {
-    return response.text().then(text => {
-        const data = text && JSON.parse(text);
-        if (!response.ok) {
-            if (response.status === 401) {
-                // auto logout if 401 response returned from api
-                logout();
-                location.reload(true);
-            }
-
-            const error = (data && data.message) || response.statusText;
-            return Promise.reject(error);
-        }
-
-        return data;
-    });
-}
+async function getAll() {
+    try {
+      const resp = await API.get("users");
+      return resp.data
+    } catch (err) {
+      return Promise.reject(err.response.data.error);
+    }
+  }
+  
+  async function getById(id) {
+    try {
+      const resp = await API.get(`users/${id}`);
+      return resp.data
+    } catch (err) {
+      return Promise.reject(err.response.data.error);
+    }
+  }
+  
+  async function create(formData) {
+    try {
+      const resp = await API.post("users", formData);
+      return resp.data
+    } catch (err) {
+        return Promise.reject(err.response.data.error)
+    }
+  }
+  
+  async function update(formData,id) {
+    try {
+      const resp = await API.put(`users/${id}`, formData);
+      return resp.data
+    } catch (err) {
+        return Promise.reject(err.response.data.error)
+    }
+  }
+  
+  // prefixed function name with underscore because delete is a reserved word in javascript
+  async function _delete(id) {
+    try {
+        const resp = await API.delete("users/"+id);
+        return resp
+    } catch (err) {
+        return Promise.reject(err.response.data.error)
+    }
+  }

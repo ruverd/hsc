@@ -6,7 +6,7 @@
     <div class="info">
       <a data-toggle="collapse" :aria-expanded="!isClosed" @click="toggleMenu" href="#">
          <span>
-           Ruver Dornelas
+           {{ this.formattedUserName(userName) }}
            <b class="caret"></b>
         </span>
       </a>
@@ -37,6 +37,7 @@
 <script>
   import { CollapseTransition } from 'vue2-transitions'
   import { mapGetters } from 'vuex'
+  
 
   export default {
     components: {
@@ -44,17 +45,24 @@
     },
     data() {
       return {
-        isClosed: true
+        isClosed: true,
+        test: 'dasdsa'
       }
     },
     computed: {
       ...mapGetters([
-        'userProfile'
-      ]),
+        'userProfile',
+        'userName'
+      ])
     },
     methods: {
       toggleMenu() {
         this.isClosed = !this.isClosed
+      },
+      formattedUserName(userName){
+        return (userName.length > 18) 
+          ? userName.slice(0,17) + '...' 
+          : userName
       }
     }
   }

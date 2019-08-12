@@ -92,6 +92,7 @@
       },
       onStepValidated(validated, model) {
         this.wizardModel = {...this.wizardModel, ...model}
+        console.log('---',this.wizardModel,model,'---');
       },
       wizardComplete() {
         swal('Good job!', 'You clicked the finish button!', 'success')

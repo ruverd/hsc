@@ -3,7 +3,7 @@
     <div class="col-md-12">
       <card>
         <h4 slot="header" class="card-title">
-          Administração de Especificações
+          Administração de Especialidades
         </h4>
         <div class="card-body row">
           <div class="col-sm-6">
@@ -11,7 +11,7 @@
               class="select-default"
               v-model="pagination.perPage"
               placeholder="Per page">
-              <el-option
+              <el-option 
                 class="select-default"
                 v-for="item in pagination.perPageOptions"
                 :key="item"
@@ -20,7 +20,7 @@
               </el-option>
             </el-select>
 
-            <p-button type="default" outline round class="list-add">
+            <p-button type="default" outline round class="list-add" @click.native="togglemodal('save')">
               <i class="fa fa-plus"></i> Adicionar
             </p-button>
           </div>
@@ -50,7 +50,7 @@
                 class-name="td-actions"
                 label="Actions">
                 <template slot-scope="props">
-                  <p-button type="success" size="sm" icon @click="handleEdit(props.$index, props.row)">
+                  <p-button type="success" size="sm" icon @click="togglemodal('edit',...props)">
                     <i class="fa fa-edit"></i>
                   </p-button>
                   <p-button type="danger" size="sm" icon @click="handleDelete(props.$index, props.row)">
@@ -73,13 +73,46 @@
         </div>
       </card>
     </div>
+    
+    <modal :show.sync="modals.open" headerClasses="justify-content-center">
+        <h4 slot="header" class="title title-up">{{modals.title}}</h4>
+          <div class="form-group">
+            <fg-input type="text"
+                      label="Nome"
+                      autocomplete="off" 
+                      required
+                      name="name"
+                      ref="name"
+                      v-validate="modelValidations.name"
+                      :error="getError('nome')"
+                      data-vv-name="nome"
+                      autofocus 
+                      v-model="form.name">
+            </fg-input>
+          </div>
+          <template slot="footer">
+
+            <div class="left-side">
+              <p-button type="default" link @click.prevent="validate">Salvar</p-button>
+            </div>
+            <div class="divider"></div>
+            <div class="right-side">
+              <p-button type="danger" link @click="togglemodal()">Cancelar</p-button>
+            </div>
+          </template>
+    </modal>
+
+    <notifications></notifications>
   </div>
 </template>
 <script>
   import Vue from 'vue'
+  import { specialityService }  from 'src/services/speciality'
   import {Table, TableColumn, Select, Option} from 'element-ui'
+  import { Modal } from 'src/components/UIComponents'
+  import swal from 'sweetalert2'
+  import Notification from 'src/components/UIComponents/Notifications'
   import PPagination from 'src/components/UIComponents/Pagination.vue'
-  import specialities from './specialities'
   Vue.use(Table)
   Vue.use(TableColumn)
   Vue.use(Select)
@@ -87,17 +120,56 @@
   export default{
     components: {
       PPagination,
+      Notification,
+      Modal
+    },
+    data () {
+      return {
+        form: {
+          id: null,
+          name: ''
+        },
+        submitted: false,
+        modelValidations: {
+          name: {
+            required: true,
+            min: 3
+          }
+        },
+        pagination: {
+          perPage: 10,
+          currentPage: 1,
+          perPageOptions: [5, 10, 25, 50],
+          total: 0
+        },
+        searchQuery: '',
+        propsToSearch: ['name'],
+        tableIndex: null,
+        tableColumns: [
+          {
+            key: 'id',
+            prop: 'name',
+            label: 'Nome',
+            minWidth: 400
+          }
+        ],
+        tableData: [],
+        modals: {
+          title: '',
+          open: false
+        }
+      }
+    },
+    mounted () {
+      specialityService.getAll()
+        .then(resp => {
+          this.tableData = resp.data
+        })
     },
     computed: {
       pagedData () {
         return this.tableData.slice(this.from, this.to)
       },
-      /***
-       * Searches through table data and returns a paginated array.
-       * Note that this should not be used for table with a lot of data as it might be slow!
-       * Do the search and the pagination on the server and display the data retrieved from server instead.
-       * @returns {computed.pagedData}
-       */
       queriedData () {
         if (!this.searchQuery) {
           this.pagination.total = this.tableData.length
@@ -132,40 +204,112 @@
         return this.tableData.length
       }
     },
-    data () {
-      return {
-        pagination: {
-          perPage: 10,
-          currentPage: 1,
-          perPageOptions: [5, 10, 25, 50],
-          total: 0
-        },
-        searchQuery: '',
-        propsToSearch: ['name', 'obs'],
-        tableColumns: [
-          {
-            prop: 'name',
-            label: 'Nome',
-            minWidth: 200
-          },
-          {
-            prop: 'obs',
-            label: 'OBS',
-            minWidth: 250
-          },
-        ],
-        tableData: specialities
+    directives: {
+      focus: {
+        // directive definition
+        inserted: function (el) {
+          el.focus()
+        }
       }
     },
     methods: {
-      handleEdit (index, row) {
-        alert(`Your want to edit ${row.name}`)
+      handleSave () {
+        specialityService.create(this.form)
+          .then(resp => {
+            this.tableData.push(resp.data)
+            this.$notify({
+              icon: 'nc-icon nc-check-2',
+              message: `Especialidade criada com sucesso!`,
+              horizontalAlign: 'right',
+              verticalAlign: 'top',
+              type: 'success'
+            })
+            this.togglemodal()
+        })
+      },
+      handleEdit () {
+        console.log('alterar')
+        let {id, ...form} = this.form
+        specialityService.update(form, id)
+          .then(resp => {
+            this.tableData.splice(this.tableIndex, 1, resp.data)
+            this.$notify({
+              icon: 'nc-icon nc-check-2',
+              message: `Especialidade alterada com sucesso!`,
+              horizontalAlign: 'right',
+              verticalAlign: 'top',
+              type: 'success'
+            })
+            this.togglemodal()
+        })
       },
       handleDelete (index, row) {
-        let indexToDelete = this.tableData.findIndex((tableRow) => tableRow.id === row.id)
-        if (indexToDelete >= 0) {
-          this.tableData.splice(indexToDelete, 1)
+        const self = this
+        swal({
+            title: 'Deseja realmente apagar essa especialidade?',
+            text: `${row.name}`,
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonClass: 'btn btn-success btn-fill',
+            cancelButtonClass: 'btn btn-danger btn-fill',
+            confirmButtonText: 'Sim',
+            cancelButtonText: 'Não',
+            buttonsStyling: false
+          }).then(function () {
+            let index = self.tableData.findIndex((tableRow) => tableRow.id === row.id)
+            if (row.id >= 0) {
+              specialityService.delete(row.id)
+                .then(resp => {
+                  self.$notify({
+                    icon: 'nc-icon nc-check-2',
+                    message: `Especialidade apagada com sucesso!`,
+                    horizontalAlign: 'right',
+                    verticalAlign: 'top',
+                    type: 'success'
+                  })
+                if (index >= 0) self.tableData.splice(index, 1)
+              })
+            }
+          })
+      },
+      setFocus () {
+        // Note, you need to add a ref="search" attribute to your input.
+        this.$refs.name.focus();
+      },
+      togglemodal (modal, props = null) {    
+        let id = null
+        if(null !== props) {
+          var { $index, row } = props
+          id = row.id
         }
+
+        if(null === id){
+          this.modals.title = 'Cadastrar Especialidade'
+          this.modals.open = !this.modals.open
+          this.cleanForm()
+        } else {
+          this.modals.title = 'Editar Especialidade'
+          this.cleanForm()
+          specialityService.getById(id)
+            .then(resp => {    
+              this.tableIndex = $index
+              this.form.id = resp.data.id
+              this.form.name = resp.data.name  
+              this.modals.open = !this.modals.open
+            })
+        }
+      },
+      cleanForm (){
+        this.form.id = null
+        this.form.name = ''
+      },
+      getError (fieldName) {
+        return this.errors.first(fieldName)
+      },
+      validate () {
+        this.$validator.validateAll().then(isValid => {
+          if (isValid) return (this.form.id === null) ? this.handleSave() : this.handleEdit();
+        })
       }
     }
   }

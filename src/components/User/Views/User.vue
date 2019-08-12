@@ -3,12 +3,7 @@
     <div class="col-md-12">
       <card>
         <h4 slot="header" class="card-title">
-          Administração de Usuários {{auth.user.name}} - {{statusUser}}
-          <form @submit.prevent="changeName">
-            <input type="text" name="newName" value="teste" v-model='newName' />
-
-          </form>
-          <button type="button" name="resetName" v-on:click="resetName('Ruver Dornelas')">Reset Name</button>
+          Administração de Usuários
         </h4>
         <div class="card-body row">
           <div class="col-sm-6">
@@ -78,9 +73,10 @@
 </template>
 <script>
   import Vue from 'vue'
-  import {Table, TableColumn, Select, Option} from 'element-ui'
+  import { userService }  from 'src/services/user'
+  import { Table, TableColumn, Select, Option } from 'element-ui'
   import PPagination from 'src/components/UIComponents/Pagination.vue'
-  import users from './users'
+  import swal from 'sweetalert2'
   import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
 
   Vue.use(Table)
@@ -90,6 +86,12 @@
   export default{
     components: {
       PPagination,
+    },
+    mounted () {
+      userService.getAll()
+        .then(resp => {
+          this.tableData = resp.data
+        })
     },
     computed: {
       ...mapState([
@@ -161,15 +163,15 @@
           {
             prop: 'email',
             label: 'Email',
-            minWidth: 250
+            minWidth: 150
           },
           {
-            prop: 'status',
+            prop: 'status.name',
             label: 'Status',
-            minWidth: 100
+            minWidth: 150
           },
         ],
-        tableData: users
+        tableData: []
       }
     },
     methods: {
@@ -177,19 +179,37 @@
         alert(`Your want to edit ${row.name}`)
       },
       handleDelete (index, row) {
-        let indexToDelete = this.tableData.findIndex((tableRow) => tableRow.id === row.id)
-        if (indexToDelete >= 0) {
-          this.tableData.splice(indexToDelete, 1)
-        }
+        const self = this
+        swal({
+            title: 'Deseja realmente apagar esse usuário?',
+            text: `${row.name}`,
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonClass: 'btn btn-success btn-fill',
+            cancelButtonClass: 'btn btn-danger btn-fill',
+            confirmButtonText: 'Sim',
+            cancelButtonText: 'Não',
+            buttonsStyling: false
+          }).then(function () {
+            let index = self.tableData.findIndex((tableRow) => tableRow.id === row.id)
+            if (row.id >= 0) {
+              userService.delete(row.id)
+                .then(resp => {
+                  self.$notify({
+                    icon: 'nc-icon nc-check-2',
+                    message: `Usuário apagado com sucesso!`,
+                    horizontalAlign: 'right',
+                    verticalAlign: 'top',
+                    type: 'success'
+                  })
+                if (index >= 0) self.tableData.splice(index, 1)
+              })
+            }
+          })
       },
       changeName (){
         this.CHANGE_USER_NAME(this.newName);
         this.newName = ''
-      },
-      resetName (name){
-        this.resetUserName(name).then((value) => {
-          console.log('Nome Resetado')
-        })
       },
       ...mapMutations([
         'CHANGE_USER_NAME'

@@ -29,16 +29,6 @@
       <ul class="navbar-nav">
 
         <li class="nav-item">
-          <a class="nav-link btn-rotate" href="#pablo">
-            <i class="nc-icon nc-bell-55"></i>
-            <span class="p-badge badge-warning badge-pill" v-if="activeNotification">!</span>
-            <p>
-              <span class="d-lg-none d-md-block">Alerta</span>
-            </p>
-          </a>
-        </li>
-
-        <li class="nav-item">
           <a class="nav-link btn-magnify" v-on:click.stop.prevent="logoutHandler">
             <i class="nc-icon nc-button-power"></i>
             <p>
@@ -62,7 +52,6 @@
     },
     computed: {
       ...mapGetters([
-        'activeNotification',
         'activeBackground',
         'activeSearch'
       ]),
