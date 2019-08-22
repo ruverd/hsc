@@ -78,7 +78,10 @@ const routes = [
     component: DefaultLayout,
     redirect: '/dashboard'
   },
-  {path: '*', component: NotFound}
+  {
+    path: '*', 
+    component: NotFound
+  }
 ];
 
 export default routes

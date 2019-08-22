@@ -1,7 +1,7 @@
 import axios from "axios";
 import { Message } from "element-ui";
 import store from "@/store";
-
+import router from '../services/router'
 // import { getToken } from '@/services/auth'
 
 // create an axios instance
@@ -26,7 +26,6 @@ API.interceptors.request.use(
   },
   error => {
     // Do something with request error
-    console.log(error); // for debug
     Promise.reject(error);
   }
 );
@@ -35,14 +34,20 @@ API.interceptors.request.use(
 API.interceptors.response.use(
   response => response,
   error => {
-    const message = error.response.data.error || error.message;
+    const message = error.response.data.error || error.message
+
+    if (error.response.status === 401) {
+      sessionStorage.removeItem("access_token");
+      router.push("/login");
+    }
+
     Message({
       message: message,
       type: "error",
       duration: 5 * 1000
     });
-    return Promise.reject(error);
+    return Promise.reject(error)
   }
 );
 
-export default API;
+export default API

@@ -1,101 +1,42 @@
 <template>
-  <div class="form-horizontal">
-    <div class="row form-group">
-        <label class="col-md-2 col-form-label">CPF</label>
-        <div class="col-md-3">
-          <el-input
-            name="cpf"
-            placeholder="Insira seu cpf"
-            v-model="model.cpf"
-            v-validate="modelValidations.cpf"
-            :error="getError('cpf')">
-          </el-input>
-        </div>
-    </div>
+  <el-form :inline="true" label-width="150px">
 
-    <div class="row form-group">
-        <label class="col-md-2 col-form-label">RG</label>
-        <div class="col-md-3">
-          <el-input
-            name="rg"
-            placeholder="Insira seu rg"
-            v-model="model.rg"
-            v-validate="modelValidations.rg"
-            :error="getError('rg')">
-          </el-input>
-        </div>
+    <el-main>Todos os documentos são obrigatórios!</el-main>
 
-        <label class="col-md-1 col-form-label">Emissor</label>
-        <div class="col-md-2">
-          <el-input
-            name="rg_emitter"
-            placeholder="Insira seu emissor"
-            v-model="model.rg_emitter"
-            v-validate="modelValidations.rg_emitter"
-            :error="getError('rg_emitter')">
-          </el-input>
-        </div>
-    </div>
+    <el-row>
+      <el-table :data="tableData" header-row-class-name="text-primary">
+        <el-table-column prop="name" label="Nome"></el-table-column>
+        <el-table-column prop="status" label="Status"></el-table-column>
+        <el-table-column prop="comment" label="Comentário"></el-table-column>
 
-    <div class="row form-group">
-        <label class="col-md-2 col-form-label">CRM</label>
-        <div class="col-md-3">
-          <el-input
-            name="crm"
-            placeholder="Insira seu crm"
-            v-model="model.crm"
-            v-validate="modelValidations.crm"
-            :error="getError('crm')">
-          </el-input>
-        </div>
+        <el-table-column
+          class-name="action-buttons td-actions"
+          max-width="40px"
+          align="right"
+          label="">
+          <template slot-scope="props">
+            <el-upload
+              class="upload-demo"
+              :show-file-list="false"
+              :limit="1"
+              :auto-upload="true"
+              action="https://jsonplaceholder.typicode.com/posts/">
+                <el-button size="mini" type="plain" >Selecione o Arquivo</el-button>
+            </el-upload>
+          </template>
+        </el-table-column>
+        <el-table-column
+          class-name="action-buttons td-actions"
+          align="center"
+          label="Ações">
+          <template slot-scope="props">
+            <el-button type="primary" size="mini" icon="el-icon-delete"></el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-row>
 
-        <label class="col-md-1 col-form-label">Emissor</label>
-        <div class="col-md-2">
-          <el-input
-            name="crm_emitter"
-            placeholder="Insira seu emissor"
-            v-model="model.crm_emitter"
-            v-validate="modelValidations.crm_emitter"
-            :error="getError('crm_emitter')">
-          </el-input>
-        </div>
-
-        <label class="col-md-1 col-form-label">Data</label>
-        <div class="col-md-2">
-          <el-date-picker
-            name="date_crm"
-            v-model="model.date_crm"
-            type="date"
-            format="dd/MM/yyyy"
-            placeholder="Selecione data"
-            v-validate="modelValidations.date_crm"
-            :error="getError('date_crm')">
-          </el-date-picker>
-        </div>
-    </div>
-
-    <div class="row form-group">
-      <label class="col-md-2 col-form-label">Título de especialista</label>
-      <div class="col-md-4">
-          <p-radio v-model="model.amb_sbm" label="1" :inline="true">Sim</p-radio>
-          <p-radio v-model="model.amb_sbm" label="2" :inline="true">Não</p-radio>
-      </div>
-    </div>
-
-    <div class="row form-group">
-      <label class="col-md-2 col-form-label">Comentário</label>
-      <div class="col-md-4">
-        <el-input
-          name="comment"
-          type="textarea"
-          :rows="4"
-          placeholder="Comentário"
-          v-model="model.comment">
-        </el-input>
-      </div>
-    </div>
-
-  </div>
+  </el-form>
 </template>
 <script>
   import {DatePicker, Input, Radio, Select} from 'element-ui'
@@ -109,44 +50,56 @@
     },
     data () {
       return {
-        model: {
-          cpf: '',
-          rg: '',
-          rg_emitter: '',
-          crm_emitter: '',
-          date_crm: '',
-          amb_sbm: '1',
+        tableData: [{
+          name: 'Diploma',
           comment: '',
+          status: 'Em Validação'
+        }, 
+        {
+          name: 'Conclusão de Residencia',
+          comment: '',
+          status: 'Aprovado'
+        }, 
+        {
+          name: 'Anuidade CRM',
+          comment: 'Anuidade do ano anterior',
+          status: 'Negado'
         },
-        modelValidations: {
-          cpf: {
-            required: true,
-            min: 5
-          },
-          rg: {
-            required: true,
-            min: 5
-          },
-          rg_emitter: {
-            required: true,
-            min: 3
-          },
-          crm: {
-            required: true,
-            min: 5
-          },
-          crm_emitter: {
-            required: true,
-            min: 3
-          },
-          date_crm: {
-            required: true,
-            min: 10
-          },
-          amb_sbm: {
-            required: true
-          }
-        }
+        {
+          name: 'Carteira do CRM',
+          comment: '',
+          status: 'Pendente'
+        },
+        {
+          name: 'RG',
+          comment: '',
+          status: 'Pendente'
+        },
+        {
+          name: 'CPF',
+          comment: '',
+          status: 'Pendente'
+        },
+        {
+          name: 'Currículo',
+          comment: '',
+          status: 'Pendente'
+        },
+        {
+          name: 'Carta de Apresentação',
+          comment: '',
+          status: 'Pendente'
+        },
+        {
+          name: 'Formulário de Estacionamento',
+          comment: '',
+          status: 'Pendente'
+        },
+        {
+          name: 'Foto 3x4',
+          comment: '',
+          status: 'Pendente'
+        }],
       }
     },
     methods: {

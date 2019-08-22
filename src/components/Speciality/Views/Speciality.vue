@@ -23,6 +23,9 @@
             <p-button type="default" outline round class="list-add" @click.native="togglemodal('save')">
               <i class="fa fa-plus"></i> Adicionar
             </p-button>
+            <p-button type="default" outline round class="list-add" @click="outerVisible = true">
+              <i class="fa fa-plus"></i> Teste Modal
+            </p-button>
           </div>
           <div class="col-sm-6">
             <div class="pull-right">
@@ -73,6 +76,19 @@
         </div>
       </card>
     </div>
+
+    <el-dialog title="Outer Dialog" width="90%" :visible.sync="outerVisible">
+      <el-dialog
+          title="Inner Dialog"
+          :visible.sync="innerVisible"
+          append-to-body
+          center>
+      </el-dialog>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="outerVisible = false">Cancel</el-button>
+        <el-button type="primary" @click="innerVisible = true">open the inner Dialog</el-button>
+      </div>
+    </el-dialog>
     
     <modal :show.sync="modals.open" headerClasses="justify-content-center">
         <h4 slot="header" class="title title-up">{{modals.title}}</h4>
@@ -108,23 +124,30 @@
 <script>
   import Vue from 'vue'
   import { specialityService }  from 'src/services/speciality'
-  import {Table, TableColumn, Select, Option} from 'element-ui'
+  import { Table, TableColumn, Select, Option, Dialog } from 'element-ui'
   import { Modal } from 'src/components/UIComponents'
   import swal from 'sweetalert2'
   import Notification from 'src/components/UIComponents/Notifications'
   import PPagination from 'src/components/UIComponents/Pagination.vue'
-  Vue.use(Table)
-  Vue.use(TableColumn)
-  Vue.use(Select)
-  Vue.use(Option)
+  // Vue.use(Table)
+  // Vue.use(TableColumn)
+  // Vue.use(Select)
+  // Vue.use(Option)
   export default{
     components: {
+      [Table.name]: Table,
+      [TableColumn.name]: TableColumn,
+      [Select.name]: Select,
+      [Option.name]: Option,
+      [Dialog.name]: Dialog,
       PPagination,
       Notification,
       Modal
     },
     data () {
       return {
+        outerVisible: false,
+        innerVisible: false,
         form: {
           id: null,
           name: ''
@@ -228,7 +251,6 @@
         })
       },
       handleEdit () {
-        console.log('alterar')
         let {id, ...form} = this.form
         specialityService.update(form, id)
           .then(resp => {

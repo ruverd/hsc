@@ -1,90 +1,60 @@
 <template>
 
-  <div class="form-horizontal">
-    <div class="row form-group">
-        <label class="col-md-1 col-form-label">Marca</label>
-        <div class="col-md-3">
-          <el-select
-                     size="large"
-                     placeholder="Selecione a marca"
-                     v-model="model.brand">
-              <el-option
-                  name="brand"
-                  v-for="option in selects.brands"
-                  :value="option.value"
-                  :label="option.label"
-                  :key="option.label">
-              </el-option>
-          </el-select>
-        </div>
+  <el-form ref="form" :label-position="labelPosition" :inline="true" label-width="150px" :model="form" :rules="rules">
 
-        <label class="col-md-1 col-form-label">Modelo</label>
-        <div class="col-md-3">
-          <el-select
-                     size="large"
-                     placeholder="Selecione o modelo"
-                     v-model="model.model">
-              <el-option
-                  name="model"
-                  v-for="option in selects.models"
-                  :value="option.value"
-                  :label="option.label"
-                  :key="option.label">
-              </el-option>
-          </el-select>
-        </div>
+    <el-main>Informações do veículo para estacionamento! <b>(Opcional)</b> </el-main>
 
-        <label class="col-md-1 col-form-label">Ano</label>
-        <div class="col-md-2">
-          <el-input
-            name="year"
-            placeholder="Digite o ano"
-            v-model="model.year"
-            v-validate="modelValidations.year"
-            :error="getError('year')">
-          </el-input>
-        </div>
-    </div>
+    <el-row>
+      <el-form-item label="Marca:" prop="brand">
+        <el-input
+          placeholder="Digite a marca"
+          v-model="form.brand">
+        </el-input>
+      </el-form-item>
+      <el-form-item label="Modelo:" prop="model">
+        <el-input
+          placeholder="Digite o modelo"
+          v-model="form.model">
+        </el-input>
+      </el-form-item>
+      <el-form-item label="Ano:" prop="year">
+        <el-input
+          placeholder="Digite o ano"
+          v-model="form.year"
+          v-mask="'####'">
+        </el-input>
+      </el-form-item>
+    </el-row>
 
-    <div class="row form-group">
-        <label class="col-md-1 col-form-label">Cor</label>
-        <div class="col-md-3">
-          <el-input
-            name="color"
-            placeholder="Digite a cor"
-            v-model="model.color"
-            v-validate="modelValidations.color"
-            :error="getError('color')">
-          </el-input>
-        </div>
+    <el-row>
+      <el-form-item label="Cor:" prop="color">
+        <el-input
+          placeholder="Digite a cor"
+          v-model="form.color">
+        </el-input>
+      </el-form-item>
+      <el-form-item label="Renavam:" prop="renavam">
+        <el-input
+          placeholder="Digite o renavam"
+          v-model="form.renavam"
+          v-mask="'##########-#'">
+        </el-input>
+      </el-form-item>
+      <el-form-item label="Placa:" prop="tag">
+        <el-input
+          placeholder="Digite a placa"
+          v-model="form.tag"
+          v-mask="'AAA-####'">
+        </el-input>
+      </el-form-item>
+    </el-row>
 
-        <label class="col-md-1 col-form-label">Renavam</label>
-        <div class="col-md-3">
-          <el-input
-            name="renavam"
-            placeholder="Digite o renavam"
-            v-model="model.renavam"
-            v-validate="modelValidations.renavam"
-            :error="getError('renavam')">
-          </el-input>
-        </div>
-
-        <label class="col-md-1 col-form-label">Placa</label>
-        <div class="col-md-3">
-          <el-input
-            name="tag"
-            placeholder="Digite a placa"
-            v-model="model.tag"
-            v-validate="modelValidations.tag"
-            :error="getError('tag')">
-          </el-input>
-        </div>
-    </div>
-
-  </div>
+  </el-form>
 </template>
 <script>
-  import {DatePicker, Input, Radio, Select, Option} from 'element-ui'
+  import { DatePicker, Input, Radio, Select, Option } from 'element-ui'
+  import { registerService }  from 'src/services/register'
+  import { mapGetters } from 'vuex'
 
   export default {
     components: {
@@ -96,7 +66,8 @@
     },
     data () {
       return {
-        model: {
+        labelPosition: 'right',
+        form: {
           brand: '',
           model: '',
           year: '',
@@ -104,56 +75,40 @@
           renavam: '',
           tag: ''
         },
-        modelValidations: {
-          brand: {
-            required: true
-          },
-          model: {
-            required: true
-          },
-          year: {
-            required: true,
-            min: 4
-          },
-          color: {
-            required: true,
-            min: 3
-          },
-          renavam: {
-            required: true,
-            min: 4
-          },
-          tag: {
-            required: true,
-            min: 5
-          }
-        },
-        selects: {
-          brands: [
-            { value: '1', label: 'Ford' },
-            { value: '2', label: 'Fiat' },
-            { value: '3', label: 'Chevrolet' }
-          ],
-          models: [
-            { value: '1', label: 'Ford' },
-            { value: '2', label: 'Fiat' },
-            { value: '3', label: 'Chevrolet' }
-          ]
-        }
+        rules: {},
       }
     },
+    computed: {
+      ...mapGetters([
+        'userLogged'
+      ])
+    },
     methods: {
-      updateProfile () {
-        alert('Your data: ' + JSON.stringify(this.user))
-      },
-      getError(fieldName) {
-        return this.errors.first(fieldName)
+      save () {
+        registerService.saveVehicle({ ...this.form }, this.userLogged.id)
+          .catch(e => {
+            console.error(e.message)
+          })
       },
       validate() {
-        return this.$validator.validateAll().then(res => {
-          this.$emit('on-validated', res, this.model)
-          return res
+        const validation = new Promise((resolve, reject) => {
+          this.$refs.form.validate(valid => {
+            this.$emit("on-validate", valid, this.form)
+            resolve(valid)
+          })
         })
+        validation.then(valid => valid && this.save())
+
+        return validation
+      }
+    },
+    async mounted () {
+      try {
+        const vehicle = await registerService.getVehicle(this.userLogged.id)
+
+        this.form = { ...vehicle }  
+      } catch(ex){
+        console.error(ex.message)
       }
     }
   }

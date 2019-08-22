@@ -20,14 +20,6 @@
                 <span class="sidebar-normal">Alterar Senha</span>
               </router-link>
             </li>
-
-            <li v-if="userProfile == 3">
-              <router-link to="/step-register">
-                <span class="sidebar-mini-icon">Cm</span>
-                <span class="sidebar-normal">Cadastro Médico</span>
-              </router-link>
-            </li>
-
           </ul>
         </collapse-transition>
       </div>
@@ -37,7 +29,6 @@
 <script>
   import { CollapseTransition } from 'vue2-transitions'
   import { mapGetters } from 'vuex'
-  
 
   export default {
     components: {
@@ -45,13 +36,11 @@
     },
     data() {
       return {
-        isClosed: true,
-        test: 'dasdsa'
+        isClosed: true
       }
     },
     computed: {
       ...mapGetters([
-        'userProfile',
         'userName'
       ])
     },

@@ -41,7 +41,6 @@ async function register(form) {
     // router.push("/dashboard");
     return access_token;
   } catch (error) {
-    console.log(error);
     return Promise.reject(err.response.data.error);
   }
 }

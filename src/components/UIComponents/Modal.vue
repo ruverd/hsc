@@ -3,7 +3,7 @@
     <form>
     <div class="modal fade"
          @click.self="closeModal"
-         :class="[{'show d-block': show}, {'d-none': !show}, {'modal-mini': type === 'mini'}]"
+         :class="[{'show d-block': show}, {'d-none': !show}, {'modal-large': type === 'large'}]"
          v-show="show"
          tabindex="-1"
          role="dialog"

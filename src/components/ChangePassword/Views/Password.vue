@@ -90,7 +90,7 @@
       },
       update() {
         this.submitted = true;
-        const { password, password_confirmation } = this.form;
+        const { password } = this.form;
         userService.updatePassword(password)
           .then(() => {
             this.$notify({

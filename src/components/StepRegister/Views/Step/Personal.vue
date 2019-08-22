@@ -1,125 +1,106 @@
 <template>
-  <div class="form-horizontal">
-    <div class="row form-group">
-        <label class="col-md-1 col-form-label">Nome</label>
-        <div class="col-md-3">
-          <p class="form-control-static">{{ form.name }}</p>
-        </div>
+  <el-form ref="form" :label-position="labelPosition" :inline="true" label-width="150px" :model="form" :rules="rules">
 
-        <label class="col-md-2 col-form-label">Data de Nascimento</label>
-        <div class="col-md-3">
-          <el-date-picker
-            name="dob"
-            v-model="form.dob"
-            type="date"
-            format="dd/MM/yyyy"
-            v-mask="'##/##/####'"
-            placeholder="      Selecione a data"
-            v-validate="modelValidations.dob"
-            autofocus
-            :error="getError('dob')">
-          </el-date-picker>
-        </div>
-    </div>
+    <el-main>Dados Pessoais</el-main>
 
-    <div class="row form-group">
-      <label class="col-md-1 col-form-label">Sexo</label>
-      <div class="col-md-3">
-        <p-radio v-model="form.gender" label="1" :inline="true">Masculino</p-radio>
-        <p-radio v-model="form.gender" label="2" :inline="true">Feminino</p-radio>
-      </div>
+    <el-row>
+      <el-form-item label="Nome:">
+        <el-input
+          v-model="form.name"
+          :disabled="true">
+        </el-input>
+      </el-form-item>
+      <el-form-item label="Data de Nascimento:" prop="dob">
+        <el-date-picker
+          v-model="form.dob"
+          type="date"
+          format="dd/MM/yyyy"
+          v-mask="'##/##/####'"
+          value-format="yyyy-MM-dd"
+          placeholder="Selecione a data">
+        </el-date-picker>
+      </el-form-item>
+    </el-row>
 
-      <label class="col-md-2 col-form-label">Estado Civil</label>
-      <div class="col-md-3">
-          <p-radio v-model="form.married" label="1" :inline="true">Casado</p-radio>
-          <p-radio v-model="form.married" label="2" :inline="true">Solteiro</p-radio>
-      </div>
+    <el-row>
+      <el-form-item label="Sexo:">
+        <el-radio-group v-model="form.gender" prop="gender">
+          <el-radio :label="1">Masculino</el-radio>
+          <el-radio :label="2">Feminino</el-radio>
+        </el-radio-group>
+      </el-form-item>
+      <el-form-item label="Estado Civil:">
+        <el-radio-group v-model="form.married" prop="married">
+          <el-radio :label="1">Casado</el-radio>
+          <el-radio :label="2">Solteiro</el-radio>
+        </el-radio-group>
+      </el-form-item>
+    </el-row>
 
-      <el-divider></el-divider>
-    </div>
+    <el-divider></el-divider>
+    <el-main>Documentos Pessoais</el-main>
 
-    <div class="row form-group">
-        <label class="col-md-1 col-form-label">CPF</label>
-        <div class="col-md-3">
-          <el-input
-            name="cpf"
-            placeholder="Insira seu cpf"
-            v-model="form.cpf"
-            v-validate="modelValidations.cpf"
-            v-mask="'###.###.###-##'"
-            :error="getError('cpf')">
-          </el-input>
-        </div>
-    </div>
+    <el-row>
+      <el-form-item label="CPF:" prop="cpf">
+        <el-input
+          placeholder="Insira o CPF"
+          v-model="form.cpf"
+          autocomplete="off"
+          v-mask="'###.###.###-##'">
+        </el-input>
+      </el-form-item>
+    </el-row>
 
-    <div class="row form-group">
-        <label class="col-md-1 col-form-label">RG</label>
-        <div class="col-md-3">
-          <el-input
-            name="rg"
-            placeholder="Insira seu rg"
-            v-model="form.rg"
-            v-validate="modelValidations.rg"
-            v-mask="'##########'"
-            :error="getError('rg')">
-          </el-input>
-        </div>
+    <el-row>
+      <el-form-item label="RG:" prop="rg">
+        <el-input
+          placeholder="Insira o RG"
+          v-model="form.rg"
+          autocomplete="off"
+          v-mask="'##########'">
+        </el-input>
+      </el-form-item>
+      <el-form-item label="Emissor RG:" prop="rg_emitter">
+        <el-input
+          placeholder="Insira o emissor"
+          v-model="form.rg_emitter">
+        </el-input>
+      </el-form-item>
+    </el-row>
 
-        <label class="col-md-1 col-form-label">Emissor</label>
-        <div class="col-md-3">
-          <el-input
-            name="rg_emitter"
-            placeholder="Insira seu emissor"
-            v-model="form.rg_emitter"
-            v-validate="modelValidations.rg_emitter"
-            :error="getError('rg_emitter')">
-          </el-input>
-        </div>
-    </div>
+    <el-row>
+      <el-form-item label="CRM:" prop="crm">
+        <el-input
+          placeholder="Insira o CRM"
+          v-model="form.crm"
+          v-mask="'##########'">
+        </el-input>
+      </el-form-item>
+      <el-form-item label="Emissor CRM:" prop="crm_emitter">
+        <el-input
+          placeholder="Insira o emissor"
+          v-model="form.crm_emitter">
+        </el-input>
+      </el-form-item>
+      <el-form-item label="Data CRM:" prop="date_crm">
+        <el-date-picker
+          v-model="form.date_crm"
+          type="date"
+          format="dd/MM/yyyy"
+          v-mask="'##/##/####'"
+          placeholder="Selecione a data"
+          value-format="yyyy-MM-dd">
+        </el-date-picker>
+      </el-form-item>
+    </el-row>
 
-    <div class="row form-group">
-        <label class="col-md-1 col-form-label">CRM</label>
-        <div class="col-md-3">
-          <el-input
-            name="crm"
-            placeholder="Insira seu crm"
-            v-model="form.crm"
-            v-mask="'##########'"
-            v-validate="modelValidations.crm"
-            :error="getError('crm')">
-          </el-input>
-        </div>
-
-        <label class="col-md-1 col-form-label">Emissor</label>
-        <div class="col-md-3">
-          <el-input
-            name="crm_emitter"
-            placeholder="Insira seu emissor"
-            v-model="form.crm_emitter"
-            v-validate="modelValidations.crm_emitter"
-            :error="getError('crm_emitter')">
-          </el-input>
-        </div>
-
-        <label class="col-md-1 col-form-label">Data</label>
-        <div class="col-md-3">
-          <el-date-picker
-            name="date_crm"
-            v-model="form.date_crm"
-            type="date"
-            format="dd/MM/yyyy"
-            v-mask="'##/##/####'"
-            placeholder="Selecione data"
-            v-validate="modelValidations.date_crm"
-            :error="getError('date_crm')">
-          </el-date-picker>
-        </div>
-    </div>
-
-  </div>
+  </el-form>
 </template>
 <script>
   import {DatePicker, Input, Radio, Divider} from 'element-ui'
+  import { registerService }  from 'src/services/register'
+  import { mapGetters } from 'vuex'
+  import moment from 'moment'
 
   export default {
     components: {
@@ -130,41 +111,85 @@
     },
     data () {
       return {
+        labelPosition: 'right',
         form: {
-          name: '222',
-          gender: '1',
-          married: '1',
-          dob: ''
+          name: '',
+          gender: 1,
+          married: 1,
+          dob: '',
+          cpf: '',
+          rg: '',
+          rg_emitter: '',
+          crm: '',
+          crm_emitter: '',
+          date_crm: ''
         },
-        modelValidations: {
-          dob: {
-            required: true,
-            min: 10
-          }
-        }
+        rules: {
+          dob: [
+            { required: true, message: 'O campo Data de Nascimento é obrigatório', trigger: 'blur' }
+          ],
+          cpf: [
+            { required: true, message: 'O campo CPF é obrigatório', trigger: 'blur' }
+          ],
+          rg: [
+            { required: true, message: 'O campo RG é obrigatório', trigger: 'blur' }
+          ],
+          rg_emitter: [
+            { required: true, message: 'O campo RG - Emissor é obrigatório', trigger: 'blur' }
+          ],
+          crm: [
+            { required: true, message: 'O campo CRM é obrigatório', trigger: 'blur' }
+          ],
+          crm_emitter: [
+            { required: true, message: 'O campo CRM - Emissor é obrigatório', trigger: 'blur' }
+          ],
+          date_crm: [
+            { required: true, message: 'O campo CRM - Data é obrigatório', trigger: 'blur' }
+          ]
+        },
       }
     },
+    computed: {
+      ...mapGetters([
+        'userLogged'
+      ])
+    },
     methods: {
-      updateProfile () {
-        alert('Your data: ' + JSON.stringify(this.user))
-      },
-      getError(fieldName) {
-        console.log(this.errors);
-        return this.errors.first(fieldName)
+      save () {
+        const {dob: dobToConvert, date_crm: date_crmToConvert, ...form } = this.form
+        const dob = moment(new Date(dobToConvert)).format("YYYY-MM-DD");
+        const date_crm = moment(new Date(date_crmToConvert)).format("YYYY-MM-DD");
+        
+        registerService.savePersonal({ ...form, dob, date_crm }, this.userLogged.id)
+          .catch(e => {
+            console.error(e.message); 
+          })
       },
       validate() {
-        return this.$validator.validateAll().then(res => {
-          this.$emit('on-validated', res, this.form)
-          console.log('---',res,'---');
-          return res
+        const validation = new Promise((resolve, reject) => {
+          this.$refs.form.validate(valid => {
+            this.$emit("on-validate", valid, this.form)
+            resolve(valid)
+          })
         })
-        // this.$validator.validateAll().then(isValid => {
-        //   if (isValid) return this.update();
-        // })
-        // this.$validator.validateAll().then(isValid => {
-        //   console.log(isValid);
-        //     return isValid
-        // })
+        validation.then(valid => valid && this.save())
+
+        return validation
+      }
+    },
+    async mounted () {
+      try{
+        const personal = await registerService.getPersonal(this.userLogged.id)
+        const document = await registerService.getDocument(this.userLogged.id)
+
+        this.form = {
+          ...document,
+          ...personal,
+          dob: new Date(`${personal.dob} 00:00:00`),
+          date_crm: (typeof document !== 'undefined') ? new Date(`${document.date_crm} 00:00:00`) : ''
+        }  
+      } catch(ex){
+        console.error(ex.message)
       }
     }
   }

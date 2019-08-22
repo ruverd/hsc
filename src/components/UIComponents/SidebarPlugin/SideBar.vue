@@ -23,7 +23,8 @@
         <slot name="links">
           <sidebar-item v-for="(link, index) in sidebarLinks"
                         :key="link.name + index"
-                        :link="link">
+                        :link="link" 
+                        v-show="userProfile === link.permission">
 
             <sidebar-item v-for="(subLink, index) in link.children"
                           :key="subLink.name + index"
@@ -38,6 +39,8 @@
 </template>
 <script>
   import 'perfect-scrollbar/dist/css/perfect-scrollbar.css'
+  import { mapGetters } from 'vuex'
+
   export default {
     props: {
       title: {
@@ -82,6 +85,11 @@
       return {
         autoClose: this.autoClose
       }
+    },
+    computed: {
+      ...mapGetters([
+        'userProfile'
+      ])
     },
     methods: {
       async initScrollBarAsync () {

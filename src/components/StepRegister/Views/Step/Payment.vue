@@ -1,118 +1,99 @@
 <template>
-  <div class="form-horizontal">
+  <el-form ref="form" :label-position="labelPosition" :inline="true" label-width="150px" :model="form" :rules="rules">
 
-    <div class="row form-group">
-        <label class="col-md-1 col-form-label">Contrato</label>
-        <div class="col-md-3">
-          <el-select
-                     size="large"
-                     placeholder="Tipo de contrato"
-                     v-model="model.contract">
-              <el-option
-                  name="contract"
-                  v-for="option in selects.contracts"
-                  :value="option.value"
-                  :label="option.label"
-                  :key="option.label">
-              </el-option>
-          </el-select>
-        </div>
+    <el-row>
+      <el-form-item label="Contrato:" prop="contract">
+        <el-select
+          size="large"
+          placeholder="Tipo de contrato"
+          v-model="form.contract">
+          <el-option
+            v-for="option in selects.contracts"
+            :value="option.value"
+            :label="option.label"
+            :key="option.label">
+          </el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="Pagamento:" prop="payment">
+        <el-select
+          size="large"
+          placeholder="Selecione a forma"
+          v-model="form.payment">
+          <el-option
+            v-for="option in selects.payments"
+            :value="option.value"
+            :label="option.label"
+            :key="option.label">
+          </el-option>
+        </el-select>
+      </el-form-item>
+    </el-row>
 
-        <label class="col-md-2 col-form-label">Forma de Pagamento</label>
-        <div class="col-md-3">
-          <el-select
-                     size="large"
-                     placeholder="Selecione a forma"
-                     v-model="model.payment">
-              <el-option
-                  name="payment"
-                  v-for="option in selects.payments"
-                  :value="option.value"
-                  :label="option.label"
-                  :key="option.label">
-              </el-option>
-          </el-select>
-        </div>
-    </div>
-
-    <div class="row form-group">
-        <label class="col-md-1 col-form-label">Banco</label>
-        <div class="col-md-3">
-          <el-select
-                     size="large"
-                     placeholder="Selecione o banco"
-                     v-model="model.bank">
-              <el-option
-                  name="payment"
-                  v-for="option in selects.banks"
-                  :value="option.value"
-                  :label="option.label"
-                  :key="option.label">
-              </el-option>
-          </el-select>
-        </div>
-
-        <label class="col-md-1 col-form-label">Agencia</label>
-        <div class="col-md-3">
-          <el-input
-            name="agency"
-            placeholder="Código da agencia"
-            v-model="model.agency"
-            v-validate="modelValidations.agency"
-            :error="getError('agency')">
-          </el-input>
-        </div>
-
-        <label class="col-md-1 col-form-label">Conta</label>
-        <div class="col-md-3">
-          <el-input
-            name="account"
-            placeholder="Código da agencia"
-            v-model="model.account"
-            v-validate="modelValidations.account"
-            :error="getError('account')">
-          </el-input>
-        </div>
-    </div>
-
-    <div class="row form-group">
-      <label class="col-md-1 col-form-label">Tem INSS</label>
-      <div class="col-md-3">
-          <p-radio v-model="model.has_inss" label="1" :inline="true">Sim</p-radio>
-          <p-radio v-model="model.has_inss" label="2" :inline="true">Não</p-radio>
-      </div>
-
-      <label class="col-md-1 col-form-label">INSS</label>
-      <div class="col-md-3">
+    <el-row>
+      <el-form-item label="Banco:" prop="bank">
+        <el-select
+          size="large"
+          placeholder="Selecione o banco"
+          v-model="form.bank">
+          <el-option
+              v-for="option in selects.banks"
+              :value="option.value"
+              :label="option.label"
+              :key="option.label">
+          </el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="Agencia:" prop="agency">
         <el-input
-          name="inss"
+          placeholder="Código da agencia"
+          v-model="form.agency"
+          v-mask="['####', '####-#', '####-##']">
+        </el-input>
+      </el-form-item>
+      <el-form-item label="Conta:" prop="account">
+        <el-input
+          placeholder="Código da agencia"
+          v-model="form.account"
+          v-mask="['#####-#', '######-#', '#######-#', '########-#', '#########-#', '###########-#']">
+        </el-input>
+      </el-form-item>
+    </el-row>
+  
+    <el-row>
+      <el-form-item label="Tem INSS?" prop="has_inss">
+        <el-radio-group v-model="form.has_inss">
+          <el-radio :label="1">Sim</el-radio>
+          <el-radio :label="2">Não</el-radio>
+        </el-radio-group>
+      </el-form-item>
+    </el-row>
+
+    <el-row>
+      <el-form-item label="INSS:" prop="inss">
+        <el-input
           placeholder="Código do INSS"
-          v-model="model.inss"
-          v-validate="modelValidations.inss"
-          :error="getError('inss')">
+          v-model="form.inss"
+          v-mask="'###.###.###-#'">
         </el-input>
-      </div>
-
-      <label class="col-md-1 col-form-label">PIS</label>
-      <div class="col-md-3">
+      </el-form-item>
+      <el-form-item label="PIS:" prop="pis">
         <el-input
-          name="pis"
           placeholder="Código do PIS"
-          v-model="model.pis"
-          v-validate="modelValidations.pis"
-          :error="getError('pis')">
+          v-model="form.pis"
+          v-mask="'##############'">
         </el-input>
-      </div>
-    </div>
-
-  </div>
+      </el-form-item>
+    </el-row>
+  </el-form>
 </template>
 <script>
-  import {DatePicker, Input, Radio, Select, Option} from 'element-ui'
+  import { Input, Radio, Select, Option } from 'element-ui'
+  import { registerService }  from 'src/services/register'
+  import { mapGetters } from 'vuex';
 
   export default {
     components: {
-      [DatePicker.name]: DatePicker,
       [Input.name]: Input,
       [Radio.name]: Radio,
       [Select.name]: Select,
@@ -120,65 +101,78 @@
     },
     data () {
       return {
-        model: {
-          street: '',
-          number: '',
-          neighborhood: '',
-          city: '',
-          state: 'São Paulo',
-          additional: '',
-          zipcode: '',
-          phone: '',
+        labelPosition: 'right',
+        form: {
+          contract: '',
+          payment: '',
+          bank: '',
+          agency: '',
+          account: '',
+          has_inss: 0,
+          inss: '',
+          pis: '',
         },
-        modelValidations: {
-          street: {
-            required: true,
-            min: 5
-          },
-          number: {
-            required: true,
-            min: 1
-          },
-          neighborhood: {
-            required: true,
-            min: 3
-          },
-          city: {
-            required: true,
-            min: 3
-          },
-          state: {
-            required: true,
-            min: 3
-          },
-          zipcode: {
-            required: true,
-            min: 7
-          },
-          phone: {
-            required: true,
-            min: 9
-          }
+        rules: {
+          contract: [
+            { required: true, message: 'O campo contrato é obrigatório', trigger: 'blur' }
+          ],
+          payment: [
+            { required: true, message: 'O campo tipo de pagamento é obrigatório', trigger: 'blur' }
+          ]
         },
         selects: {
           states: [
             { value: 'SP', label: 'São Paulo' }
+          ],
+          contracts: [
+            { value: 'Autônomo', label: 'Autônomo'},
+            { value: 'Jurídico', label: 'Jurídico'}
+          ],
+          payments: [
+            { value: 'Cheque nominal', label: 'Cheque nominal'},
+            { value: 'Deposito em conta', label: 'Deposito em conta'}
+          ],
+          banks: [
+            { value: 'Banco Bradesco (237)', label: 'Banco Bradesco (237)'},
+            { value: 'Banco do Brasil (001)', label: 'Banco do Brasil (001)'},
+            { value: 'Banco Santander (033)', label: 'Banco Santander (033)'},
+            { value: 'Caixa Econômica Federal (104)', label: 'Caixa Econômica Federal (104)'},
+            { value: 'Itaú Unibanco (341)', label: 'Itaú Unibanco (341)'}
           ]
         }
       }
     },
+    computed: {
+      ...mapGetters([
+        'userLogged'
+      ])
+    },
     methods: {
-      updateProfile () {
-        alert('Your data: ' + JSON.stringify(this.user))
-      },
-      getError(fieldName) {
-        return this.errors.first(fieldName)
+      save () {
+        registerService.savePayment({ ...this.form }, this.userLogged.id)
+          .catch(e => {
+            console.error(e.message); 
+          })
       },
       validate() {
-        return this.$validator.validateAll().then(res => {
-          this.$emit('on-validated', res, this.model)
-          return res
+        const validation = new Promise((resolve, reject) => {
+          this.$refs.form.validate(valid => {
+            this.$emit("on-validate", valid, this.form)
+            resolve(valid)
+          })
         })
+        validation.then(valid => valid && this.save())
+
+        return validation
+      }
+    },
+    async mounted () {
+      try {
+        const payment = await registerService.getPayment(this.userLogged.id)
+
+        this.form = { ...payment }  
+      } catch(ex){
+        console.error(ex.message)
       }
     }
   }

@@ -238,7 +238,6 @@
       },
       async nextTab() {
         let isValid = await this.validate();
-        alert(isValid)
         if(isValid && this.activeTabIndex === this.tabCount - 1){
           this.$emit('complete');
         }
