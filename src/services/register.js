@@ -14,7 +14,8 @@ export const registerService = {
   saveContact,
   saveVehicle,
   savePayment,
-  saveSpeciality
+  saveSpeciality,
+  deleteSpeciality
 };
 
 async function getPersonal(id) {
@@ -147,6 +148,14 @@ async function saveSpeciality(data, file) {
     formData.append("user_id", user_id);
 
     return API.post(`register/specialities`, formData, settings);
+  } catch (err) {
+    return Promise.reject(err.response.data.error);
+  }
+}
+
+async function deleteSpeciality(id) {
+  try {
+    return await API.delete(`register/specialities/${id}`);
   } catch (err) {
     return Promise.reject(err.response.data.error);
   }

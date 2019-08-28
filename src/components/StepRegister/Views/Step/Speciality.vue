@@ -37,7 +37,7 @@
           :show-file-list="false"
           :limit="1"
           :auto-upload="true"
-          :http-request="save"
+          :http-request="handleSave"
           action
         >
           <el-button size="large" type="success">Selecione o Comprovante</el-button>
@@ -71,7 +71,6 @@
 import {
   DatePicker,
   Input,
-  Radio,
   Select,
   Option,
   Upload,
@@ -80,18 +79,17 @@ import {
   TableColumn,
   Divider
 } from "element-ui";
+import swal from "sweetalert2";
 import { registerService } from "src/services/register";
 import { specialityService } from "src/services/speciality";
 import { mapGetters } from "vuex";
 
 //Delete specialities
-//Just Allow combo list specialities not included yet
 //View specialities
 export default {
   components: {
     [DatePicker.name]: DatePicker,
     [Input.name]: Input,
-    [Radio.name]: Radio,
     [Select.name]: Select,
     [Option.name]: Option,
     [Upload.name]: Upload,
@@ -120,32 +118,64 @@ export default {
     this.getAllData();
   },
   methods: {
-    save(params) {
-      const formData = {
-        ...this.form,
-        user_id: this.userLogged.id
-      };
+    async handleSave(params) {
+      try {
+        const formData = {
+          ...this.form,
+          user_id: this.userLogged.id
+        };
 
-      this.$refs.uploadSpeciality.clearFiles();
+        this.$refs.uploadSpeciality.clearFiles();
 
-      registerService
-        .saveSpeciality(formData, params)
-        .then(resp => {
-          this.getAllData();
-          this.form.speciality_id = null;
-        })
-        .catch(e => {
-          console.error(e);
-        });
+        await registerService.saveSpeciality(formData, params);
+
+        this.getAllData();
+        this.form.speciality_id = null;
+      } catch (err) {
+        console.error(err);
+      }
     },
-    getAllData() {
-      registerService.getSpecialitiesByUser(this.userLogged.id).then(resp => {
-        this.tableData = resp.data;
-      });
+    handleView(index, row) {
+      alert(`Your want to view ${row.name}`);
+    },
+    handleDelete(index, row) {
+      swal({
+        title: "Deseja realmente apagar essa especialidade?",
+        text: `${row.speciality.name}`,
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonClass: "btn btn-success btn-fill",
+        cancelButtonClass: "btn btn-danger btn-fill",
+        confirmButtonText: "Sim",
+        cancelButtonText: "Não",
+        buttonsStyling: false
+      })
+        .then(async () => {
+          try {
+            await registerService.deleteSpeciality(row.id);
+            this.getAllData();
+          } catch (err) {
+            console.error(err);
+          }
+        })
+        .catch(swal.noop);
+    },
+    async getAllData() {
+      try {
+        const respData = await registerService.getSpecialitiesByUser(
+          this.userLogged.id
+        );
 
-      specialityService.getAll().then(resp => {
-        this.selects.specialities = this.filerSelectSpecialities(resp.data);
-      });
+        this.tableData = respData.data;
+
+        const respSpeciality = await specialityService.getAll();
+
+        this.selects.specialities = this.filerSelectSpecialities(
+          respSpeciality.data
+        );
+      } catch (err) {
+        console.error(err);
+      }
     },
     filerSelectSpecialities(specialities) {
       return specialities
@@ -154,15 +184,6 @@ export default {
           return !f ? e : null;
         })
         .filter(value => (value === null ? false : true));
-    },
-    handleView(index, row) {
-      alert(`Your want to view ${row.name}`);
-    },
-    handleDelete(index, row) {
-      alert(`Your want to delete ${row.name}`);
-    },
-    getError(fieldName) {
-      return this.errors.first(fieldName);
     },
     validate() {
       return this.$validator.validateAll().then(res => {
