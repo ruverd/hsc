@@ -1,16 +1,8 @@
 import API from "../services/api";
 
-export const specialityService = {
-  getAll,
-  getById,
-  update,
-  create,
-  delete: _delete
-};
-
 async function getAll() {
   try {
-    const resp = await API.get("specialities");
+    const resp = await API.get("files");
 
     return resp.data;
   } catch (err) {
@@ -20,7 +12,7 @@ async function getAll() {
 
 async function getById(id) {
   try {
-    const resp = await API.get(`specialities/${id}`);
+    const resp = await API.get(`files/${id}`);
 
     return resp.data;
   } catch (err) {
@@ -30,7 +22,7 @@ async function getById(id) {
 
 async function create(formData) {
   try {
-    const resp = await API.post("specialities", formData);
+    const resp = await API.post("files", formData);
 
     return resp.data;
   } catch (err) {
@@ -40,7 +32,7 @@ async function create(formData) {
 
 async function update(formData, id) {
   try {
-    const resp = await API.put(`specialities/${id}`, formData);
+    const resp = await API.put(`files/${id}`, formData);
 
     return resp.data;
   } catch (err) {
@@ -51,8 +43,18 @@ async function update(formData, id) {
 // prefixed function name with underscore because delete is a reserved word in javascript
 async function _delete(id) {
   try {
-    return await API.delete("specialities/" + id);
+    const resp = await API.delete("files/" + id);
+
+    return resp;
   } catch (err) {
     return Promise.reject(err.response.data.error);
   }
 }
+
+export const fileService = {
+  getAll,
+  getById,
+  update,
+  create,
+  delete: _delete
+};

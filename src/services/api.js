@@ -2,12 +2,11 @@ import axios from "axios";
 import { Message } from "element-ui";
 import store from "@/store";
 import router from "../services/router";
-// import { getToken } from '@/services/auth'
 
 // create an axios instance
 const API = axios.create({
-  baseURL: "http://localhost:8000", // api的base_url
-  timeout: 5000 // request timeout
+  baseURL: "http://localhost:8000",
+  timeout: 5000
 });
 
 API.interceptors.request.use(
@@ -25,7 +24,6 @@ API.interceptors.request.use(
     return config;
   },
   error => {
-    // Do something with request error
     Promise.reject(error);
   }
 );
@@ -34,20 +32,24 @@ API.interceptors.request.use(
 API.interceptors.response.use(
   response => response,
   error => {
-    console.log(error);
-    // const message = error.response.data.error || error.message
+    if (error) {
+      const message =
+        error.response.data === undefined
+          ? error.message
+          : error.response.data.error;
 
-    // if (error.response.status === 401) {
-    //   sessionStorage.removeItem("access_token");
-    //   router.push("/login");
-    // }
+      if (error.response.status === 401) {
+        sessionStorage.removeItem("access_token");
+        router.push("/login");
+      }
 
-    // Message({
-    //   message: message,
-    //   type: "error",
-    //   duration: 5 * 1000
-    // });
-    return Promise.reject(error);
+      Message({
+        message: message,
+        type: "error",
+        duration: 5 * 1000
+      });
+      return Promise.reject(error);
+    }
   }
 );
 

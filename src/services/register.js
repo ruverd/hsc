@@ -1,6 +1,6 @@
-import { authHeader } from "../utils/authHeader";
 import API from "./api";
-import { log } from "util";
+import axios from "axios";
+import router from "../services/router";
 
 export const registerService = {
   getDocument,
@@ -10,12 +10,23 @@ export const registerService = {
   getPayment,
   getSpecialitiesByUser,
   getSpeciality,
+  getFilesByUser,
+  getFile,
   savePersonal,
   saveContact,
   saveVehicle,
   savePayment,
   saveSpeciality,
-  deleteSpeciality
+  deleteSpeciality,
+  approveSpeciality,
+  downloadSpeciality,
+  saveFile,
+  deleteFile,
+  downloadFile,
+  approveFile,
+  getAddress,
+  completed,
+  redirect
 };
 
 async function getPersonal(id) {
@@ -88,14 +99,34 @@ async function getSpecialitiesByUser(userId) {
   }
 }
 
+async function getFile(id) {
+  try {
+    const resp = await API.get(`register/files/${id}`);
+
+    return resp.data.data[0];
+  } catch (err) {
+    return Promise.reject(err.response.data.error);
+  }
+}
+
+async function getFilesByUser(userId) {
+  try {
+    const resp = await API.get(`register/files/user/${userId}`);
+
+    return resp.data;
+  } catch (err) {
+    return Promise.reject(err.response.data.error);
+  }
+}
+
 async function savePersonal(formData, userId) {
   try {
     const user = await API.put(`users/${userId}`, formData);
     const document = await this.getDocument(userId);
 
     return typeof document === "undefined"
-      ? API.post(`register/documents`, { ...formData, user_id: userId })
-      : API.put(`register/documents/${document.id}`, formData);
+      ? await API.post(`register/documents`, { ...formData, user_id: userId })
+      : await API.put(`register/documents/${document.id}`, formData);
   } catch (err) {
     return Promise.reject(err.response.data.error);
   }
@@ -106,8 +137,8 @@ async function saveContact(formData, userId) {
     const contact = await this.getContact(userId);
 
     return typeof contact === "undefined"
-      ? API.post(`register/contacts`, { ...formData, user_id: userId })
-      : API.put(`register/contacts/${contact.id}`, formData);
+      ? await API.post(`register/contacts`, { ...formData, user_id: userId })
+      : await API.put(`register/contacts/${contact.id}`, formData);
   } catch (err) {
     return Promise.reject(err.response.data.error);
   }
@@ -118,8 +149,8 @@ async function saveVehicle(formData, userId) {
     const vehicle = await this.getVehicle(userId);
 
     return typeof vehicle === "undefined"
-      ? API.post(`register/vehicles`, { ...formData, user_id: userId })
-      : API.put(`register/vehicles/${vehicle.id}`, formData);
+      ? await API.post(`register/vehicles`, { ...formData, user_id: userId })
+      : await API.put(`register/vehicles/${vehicle.id}`, formData);
   } catch (err) {
     return Promise.reject(err.response.data.error);
   }
@@ -130,8 +161,8 @@ async function savePayment(formData, userId) {
     const payment = await this.getPayment(userId);
 
     return typeof payment === "undefined"
-      ? API.post(`register/payments`, { ...formData, user_id: userId })
-      : API.put(`register/payments/${payment.id}`, formData);
+      ? await API.post(`register/payments`, { ...formData, user_id: userId })
+      : await API.put(`register/payments/${payment.id}`, formData);
   } catch (err) {
     return Promise.reject(err.response.data.error);
   }
@@ -147,7 +178,15 @@ async function saveSpeciality(data, file) {
     formData.append("speciality_id", speciality_id);
     formData.append("user_id", user_id);
 
-    return API.post(`register/specialities`, formData, settings);
+    return await API.post(`register/specialities`, formData, settings);
+  } catch (err) {
+    return Promise.reject(err.response.data.error);
+  }
+}
+
+async function approveSpeciality(formData, id) {
+  try {
+    return await API.put(`register/specialities/${id}`, formData);
   } catch (err) {
     return Promise.reject(err.response.data.error);
   }
@@ -156,6 +195,84 @@ async function saveSpeciality(data, file) {
 async function deleteSpeciality(id) {
   try {
     return await API.delete(`register/specialities/${id}`);
+  } catch (err) {
+    return Promise.reject(err.response.data.error);
+  }
+}
+
+async function downloadSpeciality(id) {
+  try {
+    return await API.get(`register/specialities/${id}/download`);
+  } catch (err) {
+    return Promise.reject(err.response.data.error);
+  }
+}
+
+async function saveFile(data, file) {
+  try {
+    let formData = new FormData();
+    let settings = { headers: { "content-type": "multipart/form-data" } };
+    const { file_id, user_id } = data;
+
+    formData.append("file", file.file);
+    formData.append("file_id", file_id);
+    formData.append("user_id", user_id);
+
+    return await API.post(`register/files`, formData, settings);
+  } catch (err) {
+    return Promise.reject(err.response.data.error);
+  }
+}
+
+async function deleteFile(id) {
+  try {
+    return await API.delete(`register/files/${id}`);
+  } catch (err) {
+    return Promise.reject(err.response.data.error);
+  }
+}
+
+async function downloadFile(id) {
+  try {
+    return await API.get(`register/files/${id}/download`);
+  } catch (err) {
+    return Promise.reject(err.response.data.error);
+  }
+}
+
+async function approveFile(formData, id) {
+  try {
+    return await API.put(`register/files/${id}`, formData);
+  } catch (err) {
+    return Promise.reject(err.response.data.error);
+  }
+}
+
+async function getAddress(cep) {
+  try {
+    if (/^[0-9]{5}-[0-9]{3}$/.test(cep)) {
+      return await axios.get(`https://viacep.com.br/ws/${cep}/json/`);
+    }
+
+    return;
+  } catch (err) {
+    return Promise.reject(err.response.data.error);
+  }
+}
+
+async function completed(userId) {
+  try {
+    return await API.put(`registers/${userId}`);
+  } catch (err) {
+    return Promise.reject(err.response.data.error);
+  }
+}
+
+async function redirect() {
+  try {
+    router.push("/dashboard");
+
+    return;
   } catch (err) {
     return Promise.reject(err.response.data.error);
   }

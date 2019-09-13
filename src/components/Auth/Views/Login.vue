@@ -27,7 +27,7 @@
                     placeholder="Senha"
                     type="password"
                   ></fg-input>
-                  <br>
+                  <br />
 
                   <p-button
                     native-type="submit"
@@ -105,10 +105,12 @@ export default {
       document.body.classList.remove("nav-open");
       document.body.classList.remove("off-canvas-sidebar");
     },
-    authentication() {
+    async authentication() {
       this.submitted = true;
+
       const { email, password } = this.form;
-      return this.login({ email, password });
+
+      return await this.login({ email, password });
     }
   },
   beforeDestroy() {

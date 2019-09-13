@@ -9,29 +9,38 @@
   >
     <el-main v-if="errorValidation">
       <el-alert
-        title="Documento Obrigatório!"
-        description="Adicione ao menos uma especialidade."
+        title="Documento(s) Obrigatório(s)!"
+        description="Lembre-se! Todos os documentos são obrigatórios."
         type="error"
         show-icon
       ></el-alert>
     </el-main>
 
-    <el-main v-if="!disabled">
-      Adicione suas especialidades
+    <el-main v-if="selects.files.length">
+      <br />Todos os documentos são obrigatórios
       <b>(obs: Formatos jpg/png/pdf, com tamanho menor que 500kb)</b>
     </el-main>
 
-    <el-row v-if="!disabled">
-      <el-form-item label="Especilidade:">
+    <el-main v-if="!selects.files.length">
+      <el-alert
+        title="Todos documentos foram cadastrados!"
+        description="Clique no botão finalizar para enviar seu cadastro."
+        type="success"
+        show-icon
+      ></el-alert>
+    </el-main>
+
+    <el-row v-if="selects.files.length">
+      <el-form-item label="Documentos:">
         <el-select
-          ref="selectSpecialities"
+          ref="selectFiles"
           size="large"
           placeholder="Selecione..."
           clearable
-          v-model="form.speciality_id"
+          v-model="form.file_id"
         >
           <el-option
-            v-for="option in selects.specialities"
+            v-for="option in selects.files"
             :value="option.id"
             :label="option.name"
             :key="option.name"
@@ -40,8 +49,8 @@
       </el-form-item>
       <el-form-item>
         <el-upload
-          ref="uploadSpeciality"
-          v-if="form.speciality_id"
+          ref="uploadFile"
+          v-if="form.file_id"
           class="upload-demo"
           :show-file-list="false"
           :limit="1"
@@ -49,7 +58,7 @@
           :http-request="handleSave"
           action
         >
-          <el-button size="large" type="success">Selecione o Comprovante</el-button>
+          <el-button size="large" type="success">Selecione o Documento</el-button>
         </el-upload>
       </el-form-item>
     </el-row>
@@ -58,9 +67,13 @@
 
     <el-row>
       <el-table :data="tableData" header-row-class-name="text-primary">
-        <el-table-column prop="speciality.name" label="Nome"></el-table-column>
+        <el-table-column prop="file.name" label="Nome" width="260"></el-table-column>
         <el-table-column prop="status" label="Status"></el-table-column>
-        <el-table-column prop="comment" label="Comentário"></el-table-column>
+        <el-table-column prop="comment" label="Comentário">
+          <template slot-scope="scope">
+            <el-input v-model="scope.row.comment"></el-input>
+          </template>
+        </el-table-column>
         <el-table-column class-name="action-buttons td-actions" align="right" label="Ações">
           <template slot-scope="props">
             <p-button
@@ -99,7 +112,7 @@ import {
 } from "element-ui";
 import swal from "sweetalert2";
 import { registerService } from "src/services/register";
-import { specialityService } from "src/services/speciality";
+import { fileService } from "src/services/file";
 import { mapGetters } from "vuex";
 
 export default {
@@ -117,12 +130,13 @@ export default {
       labelPosition: "right",
       disabled: false,
       form: {
-        speciality_id: null
+        file_id: null
       },
+      file: "",
       rules: {},
       tableData: [],
       selects: {
-        specialities: []
+        files: []
       },
       errorValidation: false
     };
@@ -146,19 +160,25 @@ export default {
           user_id: this.userLogged.id
         };
 
-        this.$refs.uploadSpeciality.clearFiles();
+        this.$refs.uploadFile.clearFiles();
 
-        await registerService.saveSpeciality(formData, params);
+        await registerService.saveFile(formData, params);
         await this.getAllData();
 
-        this.form.speciality_id = null;
+        this.form.file_id = null;
+
+        if (!this.selects.files.length) {
+          await registerService.completed(this.userLogged.id);
+        }
+
+        return;
       } catch (err) {
         console.error(err);
       }
     },
     downloadFile(ext, fileBase64) {
       const downloadLink = document.createElement("a");
-      const fileName = `speciality.${ext}`;
+      const fileName = `file.${ext}`;
       const linkSource =
         ext === "pdf"
           ? `data:application/pdf;base64,${fileBase64}`
@@ -169,14 +189,14 @@ export default {
       downloadLink.click();
     },
     async handleView(index, row) {
-      const resp = await registerService.downloadSpeciality(row.id);
+      const resp = await registerService.downloadFile(row.id);
 
-      return this.downloadFile(resp.data.extension, resp.data.fileBase64);
+      return await this.downloadFile(resp.data.extension, resp.data.fileBase64);
     },
     handleDelete(index, row) {
       swal({
-        title: "Deseja realmente apagar essa especialidade?",
-        text: `${row.speciality.name}`,
+        title: "Deseja realmente apagar esse documento?",
+        text: `${row.file.name}`,
         type: "warning",
         showCancelButton: true,
         confirmButtonClass: "btn btn-success btn-fill",
@@ -187,8 +207,8 @@ export default {
       })
         .then(async () => {
           try {
-            await registerService.deleteSpeciality(row.id);
-            this.getAllData();
+            await registerService.deleteFile(row.id);
+            await this.getAllData();
           } catch (err) {
             console.error(err);
           }
@@ -197,31 +217,29 @@ export default {
     },
     async getAllData() {
       try {
-        const respData = await registerService.getSpecialitiesByUser(
+        const respData = await registerService.getFilesByUser(
           this.userLogged.id
         );
 
         this.tableData = respData.data;
 
-        const respSpeciality = await specialityService.getAll();
+        const respFile = await fileService.getAll();
 
-        this.selects.specialities = this.filerSelectSpecialities(
-          respSpeciality.data
-        );
+        this.selects.files = await this.filerSelectFiles(respFile.data);
       } catch (err) {
         console.error(err);
       }
     },
-    filerSelectSpecialities(specialities) {
-      return specialities
+    filerSelectFiles(files) {
+      return files
         .map(e => {
-          let f = this.tableData.find(a => a.speciality_id === e.id);
+          let f = this.tableData.find(a => a.file_id === e.id);
           return !f ? e : null;
         })
         .filter(value => (value === null ? false : true));
     },
     validate() {
-      if (this.tableData.length) {
+      if (!this.selects.files.length) {
         return this.$validator.validateAll().then(res => {
           this.$emit("on-validated", res, this.model);
           this.errorValidation = false;

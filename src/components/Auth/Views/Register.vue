@@ -187,20 +187,17 @@ export default {
       document.body.classList.remove("nav-open");
       document.body.classList.remove("off-canvas-sidebar");
     },
-    registration() {
+    async registration() {
       this.submitted = true;
+
       const { form } = this;
-      this.register({ form });
+
+      await this.register({ form });
     }
   },
   beforeDestroy() {
     this.closeMenu();
   }
-
-  // openModalTerm(){
-  //   console.log('teste');
-  //    this.$refs.modal.open()
-  // }
 };
 </script>
 <style>
