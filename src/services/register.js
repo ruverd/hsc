@@ -26,6 +26,7 @@ export const registerService = {
   approveFile,
   getAddress,
   completed,
+  validateUser,
   redirect
 };
 
@@ -243,6 +244,22 @@ async function downloadFile(id) {
 async function approveFile(formData, id) {
   try {
     return await API.put(`register/files/${id}`, formData);
+  } catch (err) {
+    return Promise.reject(err.response.data.error);
+  }
+}
+
+async function validateUser(formData, id) {
+  try {
+    return await API.put(`register/validate/${id}`, formData);
+  } catch (err) {
+    return Promise.reject(err.response.data.error);
+  }
+}
+
+async function approveUser(formData, id) {
+  try {
+    return await API.put(`register/approve/${id}`, formData);
   } catch (err) {
     return Promise.reject(err.response.data.error);
   }

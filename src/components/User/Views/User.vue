@@ -435,13 +435,13 @@
       </el-form>
 
       <span slot="footer" class="dialog-footer" v-if="userProfile === 2">
-        <el-button type="success" @click="dialogFormVisible = false">Validar</el-button>
-        <el-button type="danger" @click="dialogFormVisible = false">Não Validar</el-button>
+        <el-button type="success" @click="handleValidateUser(true)">Validar</el-button>
+        <el-button type="danger" @click="handleValidateUser(false)">Não Validar</el-button>
       </span>
 
       <span slot="footer" class="dialog-footer" v-if="userProfile === 3">
-        <el-button type="success" @click="dialogFormVisible = false">Aprovar</el-button>
-        <el-button type="danger" @click="dialogFormVisible = false">Rejeitar</el-button>
+        <el-button type="success" @click="handleApproveUser(true)">Aprovar</el-button>
+        <el-button type="danger" @click="handleApproveUser(false)">Rejeitar</el-button>
       </span>
     </el-dialog>
   </div>
@@ -560,13 +560,7 @@ export default {
     };
   },
   async mounted() {
-    try {
-      const resp = await userService.getAll();
-
-      this.tableData = resp.data;
-    } catch (err) {
-      console.error(err);
-    }
+    this.loadTableUsers();
   },
   computed: {
     ...mapState(["auth"]),
@@ -619,9 +613,23 @@ export default {
     }
   },
   methods: {
-    handleEdit(index, row) {
-      this.loadDialogForm(row.id);
-      this.dialogVisible = true;
+    async loadTableUsers() {
+      try {
+        const resp = await userService.getAll();
+
+        this.tableData = resp.data;
+      } catch (err) {
+        console.error(err);
+      }
+    },
+    async handleEdit(index, row) {
+      try {
+        await this.loadDialogForm(row.id);
+
+        this.dialogVisible = true;
+      } catch (err) {
+        console.error(err);
+      }
     },
     async loadDialogForm(id) {
       try {
@@ -636,6 +644,7 @@ export default {
         this.tableDataSpeciality = specialities.data;
         this.tableDataFile = files.data;
         this.form = {
+          id,
           ...personal,
           ...document,
           ...contact,
@@ -664,71 +673,117 @@ export default {
       downloadLink.click();
     },
     async handleViewSpeciality(index, row) {
-      const resp = await registerService.downloadSpeciality(row.id);
+      try {
+        const resp = await registerService.downloadSpeciality(row.id);
 
-      await this.downloadFile(
-        resp.data.extension,
-        resp.data.fileBase64,
-        "speciality"
-      );
-
-      return;
+        await this.downloadFile(
+          resp.data.extension,
+          resp.data.fileBase64,
+          "speciality"
+        );
+      } catch (err) {
+        console.error(err);
+      }
     },
     async handleApproveSpeciality(index, row, approved) {
       try {
         const { comment } = row;
+        const message = approved ? "aprovada" : "rejeitada";
 
         await registerService.approveSpeciality({ approved, comment }, row.id);
 
+        const specialities = await registerService.getSpecialitiesByUser(
+          this.form.id
+        );
+        this.tableDataSpeciality = specialities.data;
+
         this.$notify({
           icon: "nc-icon nc-check-2",
-          message: `Especialidade aprovada/rejeitada com sucesso!`,
+          message: `Especialidade ${message} com sucesso!`,
           horizontalAlign: "right",
           verticalAlign: "top",
           type: "success"
         });
-
-        return;
       } catch (err) {
         console.error(err);
       }
     },
     async handleViewFile(index, row) {
-      const resp = await registerService.downloadFile(row.id);
+      try {
+        const resp = await registerService.downloadFile(row.id);
 
-      await this.downloadFile(
-        resp.data.extension,
-        resp.data.fileBase64,
-        "file"
-      );
-
-      return;
+        await this.downloadFile(
+          resp.data.extension,
+          resp.data.fileBase64,
+          "file"
+        );
+      } catch (err) {
+        console.error(err);
+      }
     },
     async handleApproveFile(index, row, approved) {
       try {
         const { comment } = row;
+        const message = approved ? "validado" : "rejeitado";
 
         await registerService.approveFile({ approved, comment }, row.id);
 
+        const files = await registerService.getFilesByUser(this.form.id);
+        this.tableDataFile = files.data;
+
         this.$notify({
           icon: "nc-icon nc-check-2",
-          message: `Arquivo aprovada/rejeitada com sucesso!`,
+          message: `Arquivo ${approved} com sucesso!`,
+          horizontalAlign: "right",
+          verticalAlign: "top",
+          type: "success"
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    },
+    async handleValidateUser(approved) {
+      try {
+        const { comment, id } = this.form;
+        const message = approved ? "validado" : "não validado";
+
+        await registerService.validateUser({ approved, comment }, id);
+
+        this.$notify({
+          icon: "nc-icon nc-check-2",
+          message: `Usuário ${message} com sucesso!`,
           horizontalAlign: "right",
           verticalAlign: "top",
           type: "success"
         });
 
-        return;
+        this.dialogVisible = false;
+        await this.loadTableUsers();
       } catch (err) {
         console.error(err);
       }
     },
-    changeName() {
-      this.CHANGE_USER_NAME(this.newName);
-      this.newName = "";
-    },
-    ...mapMutations(["CHANGE_USER_NAME"]),
-    ...mapActions(["resetUserName"])
+    async handleApproveUser(approved) {
+      try {
+        const { comment, id } = this.form;
+        const message = approved ? "aprovado" : "rejeitado";
+
+        await registerService.validateUser({ approved, comment }, id);
+
+        this.$notify({
+          icon: "nc-icon nc-check-2",
+          message: `Usuário ${message} com sucesso!`,
+          horizontalAlign: "right",
+          verticalAlign: "top",
+          type: "success"
+        });
+
+        this.dialogVisible = false;
+        await this.loadTableUsers();
+      } catch (err) {
+        console.error(err);
+      }
+    }
   }
 };
 </script>
