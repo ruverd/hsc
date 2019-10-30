@@ -27,6 +27,7 @@ export const registerService = {
   getAddress,
   completed,
   validateUser,
+  approveUser,
   redirect
 };
 

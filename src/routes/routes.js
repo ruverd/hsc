@@ -3,25 +3,14 @@ import DefaultLayout from "../components/Layout/Default/DashboardLayout.vue";
 // GeneralViews
 import NotFound from "../components/GeneralViews/Views/NotFoundPage.vue";
 
-// Pages
-import Login from "src/components/Auth/Views/Login.vue";
-import Register from "src/components/Auth/Views/Register.vue";
+import Login from "src/pages/Login";
+import Register from "src/pages/Register";
 
-// Dashboard pages
-const Dashboard = () =>
-  import(/* webpackChunkName: "widgets" */ "src/components/Dashboard/Views/Dashboard.vue");
-
-// User Page
-const User = () =>
-  import(/* webpackChunkName: "widgets" */ "src/components/User/Views/User.vue");
-const Speciality = () =>
-  import(/* webpackChunkName: "widgets" */ "src/components/Speciality/Views/Speciality.vue");
-
-// Cadastro Médico
-const StepRegister = () =>
-  import(/* webpackChunkName: "forms" */ "src/components/StepRegister/Views/Register.vue");
-const ChangePassword = () =>
-  import(/* webpackChunkName: "forms" */ "src/components/ChangePassword/Views/Password.vue");
+const Dashboard = () => import("src/pages/Dashboard");
+const User = () => import("src/pages/User");
+const Speciality = () => import("src/pages/Speciality");
+const StepRegister = () => import("src/pages/StepRegister");
+const ChangePassword = () => import("src/pages/ChangePassword");
 
 let loginPage = {
   path: "/login",
