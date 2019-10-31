@@ -3,6 +3,5 @@ node_modules/
 dist/
 .idea/
 npm-debug.log
-
-storybook-static/
 test/unit/coverage/
+hsc-workspace.code-workspace
