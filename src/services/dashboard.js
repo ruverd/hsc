@@ -4,7 +4,7 @@ async function getInfo() {
   try {
     const resp = await API.get("dashboard/report");
 
-    return resp;
+    return resp.data;
   } catch (err) {
     return Promise.reject(err.response.data.error);
   }

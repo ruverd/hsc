@@ -5,8 +5,8 @@ import router from "../services/router";
 
 // create an axios instance
 const API = axios.create({
-  baseURL: "http://localhost:8000",
-  timeout: 5000
+  baseURL: "http://45.55.19.199/hsc-api",
+  timeout: 50000
 });
 
 API.interceptors.request.use(
@@ -33,14 +33,16 @@ API.interceptors.response.use(
   response => response,
   error => {
     if (error) {
-      const message =
-        error.response.data === undefined
-          ? error.message
-          : error.response.data.error;
 
-      if (error.response.status === 401) {
-        sessionStorage.removeItem("access_token");
-        router.push("/login");
+      if(error.response === undefined){
+        let message = error.message;
+
+        if (error.response.status === 401) {
+          sessionStorage.removeItem("access_token");
+          router.push("/login");
+        }
+      } else {
+        let message = error.response.data.error;
       }
 
       Message({
